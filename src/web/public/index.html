@@ -1,0 +1,2545 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI-agent • Meeting Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      /* Clean Modern Light Theme (Default) */
+      --bg-base: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-card: #f8fafc;
+      --bg-card-hover: #f1f5f9;
+      --bg-input: #ffffff;
+      --border-color: #e2e8f0;
+      --border-focus: #2563eb;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --text-dim: #94a3b8;
+      --accent-blue: #2563eb;
+      --accent-blue-glow: rgba(37, 99, 235, 0.12);
+      --accent-green: #059669;
+      --accent-green-glow: rgba(5, 150, 105, 0.12);
+      --accent-rose: #e11d48;
+      --accent-rose-glow: rgba(225, 29, 72, 0.12);
+      --accent-purple: #7c3aed;
+      --accent-amber: #d97706;
+      --header-bg: rgba(255, 255, 255, 0.95);
+      --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+      --chat-container-bg: #fdfdfd;
+      --chat-user-bg: #ffffff;
+      --chat-user-border: #e2e8f0;
+      --chat-user-text: #0f172a;
+      --chat-bot-bg: linear-gradient(135deg, #eff6ff 0%, #f5f3ff 100%);
+      --chat-bot-border: #c7d2fe;
+      --chat-bot-text: #1e1b4b;
+      --modal-bg: #ffffff;
+      --modal-hero-bg: linear-gradient(135deg, #f0fdf4 0%, #eff6ff 100%);
+      --modal-hero-border: #bfdbfe;
+      --modal-box-bg: #f8fafc;
+      --modal-box-border: #e2e8f0;
+      --modal-backdrop: rgba(15, 23, 42, 0.6);
+      --scrollbar-thumb: #cbd5e1;
+    }
+
+    [data-theme="dark"] {
+      --bg-base: #090d16;
+      --bg-surface: #111726;
+      --bg-card: #182238;
+      --bg-card-hover: #1f2c48;
+      --bg-input: #182238;
+      --border-color: #263554;
+      --border-focus: #3b82f6;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --accent-blue: #3b82f6;
+      --accent-blue-glow: rgba(59, 130, 246, 0.25);
+      --accent-green: #10b981;
+      --accent-green-glow: rgba(16, 185, 129, 0.25);
+      --accent-rose: #f43f5e;
+      --accent-rose-glow: rgba(244, 63, 94, 0.25);
+      --accent-purple: #8b5cf6;
+      --accent-amber: #f59e0b;
+      --header-bg: rgba(17, 23, 38, 0.95);
+      --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+      --chat-container-bg: #0d1322;
+      --chat-user-bg: #182238;
+      --chat-user-border: #263554;
+      --chat-user-text: #e2e8f0;
+      --chat-bot-bg: linear-gradient(135deg, rgba(79, 70, 229, 0.25), rgba(124, 58, 237, 0.25));
+      --chat-bot-border: rgba(139, 92, 246, 0.35);
+      --chat-bot-text: #f8fafc;
+      --modal-bg: #111726;
+      --modal-hero-bg: linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.9));
+      --modal-hero-border: rgba(59, 130, 246, 0.25);
+      --modal-box-bg: rgba(24, 34, 56, 0.7);
+      --modal-box-border: #263554;
+      --modal-backdrop: rgba(3, 7, 18, 0.85);
+      --scrollbar-thumb: #334155;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-base);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    /* Top Navigation Header */
+    header {
+      background: var(--header-bg);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+
+    .brand-text h1 {
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text-main);
+    }
+
+    .brand-text p {
+      font-size: 11.5px;
+      color: var(--text-dim);
+      font-weight: 500;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pill-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+    }
+
+    .timer-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+    }
+
+    .timer-pill.active {
+      border-color: var(--accent-blue);
+      color: var(--accent-blue);
+      background: rgba(37, 99, 235, 0.08);
+    }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text-dim);
+    }
+
+    .status-pill.idle {
+      border-color: var(--border-color);
+      color: var(--text-muted);
+    }
+
+    .status-pill.connecting {
+      border-color: var(--accent-amber);
+      background: rgba(217, 119, 6, 0.1);
+      color: var(--accent-amber);
+    }
+
+    .status-pill.connecting .status-dot {
+      background: var(--accent-amber);
+      animation: pulse 1.2s infinite;
+    }
+
+    .status-pill.in_meeting {
+      border-color: var(--accent-green);
+      background: rgba(5, 150, 105, 0.1);
+      color: var(--accent-green);
+    }
+
+    .status-pill.in_meeting .status-dot {
+      background: var(--accent-green);
+      animation: pulse 1.8s infinite;
+    }
+
+    .status-pill.speaking {
+      border-color: var(--accent-purple);
+      background: rgba(124, 58, 237, 0.1);
+      color: var(--accent-purple);
+    }
+
+    .status-pill.speaking .status-dot {
+      background: var(--accent-purple);
+      animation: pulse 0.8s infinite;
+    }
+
+    .status-pill.listening {
+      border-color: var(--accent-blue);
+      background: rgba(37, 99, 235, 0.1);
+      color: var(--accent-blue);
+    }
+
+    .status-pill.listening .status-dot {
+      background: var(--accent-blue);
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.3); opacity: 0.5; }
+    }
+
+    .btn-scorecard-header {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      font-size: 12.5px;
+      font-weight: 700;
+      border-radius: 8px;
+      background: rgba(37, 99, 235, 0.1);
+      border: 1px solid rgba(37, 99, 235, 0.25);
+      color: var(--accent-blue);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-scorecard-header:hover {
+      background: rgba(37, 99, 235, 0.18);
+    }
+
+    .theme-toggle-btn {
+      cursor: pointer;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 13px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Main Grid Layout */
+    main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 410px 1fr;
+      gap: 20px;
+      padding: 20px 24px;
+      max-width: 1600px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 1024px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--card-shadow);
+    }
+
+    .card-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-surface);
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-body {
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Form Fields */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .badge-tag {
+      font-size: 10.5px;
+      padding: 2px 7px;
+      border-radius: 5px;
+      background: rgba(37, 99, 235, 0.1);
+      color: var(--accent-blue);
+      border: 1px solid rgba(37, 99, 235, 0.2);
+      font-weight: 600;
+    }
+
+    .input-field, select, textarea {
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 13.5px;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .input-field:focus, select:focus, textarea:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px var(--accent-blue-glow);
+    }
+
+    /* URL input group with paste shortcut */
+    .url-input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .url-input-wrapper input {
+      padding-right: 70px;
+    }
+
+    .btn-paste {
+      position: absolute;
+      right: 6px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .btn-paste:hover {
+      color: var(--accent-blue);
+      border-color: var(--accent-blue);
+    }
+
+    /* Response Mode Segmented Switch */
+    .segmented-control {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 4px;
+    }
+
+    .segment-btn {
+      padding: 8px 10px;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .segment-btn.active {
+      background: var(--bg-surface);
+      color: var(--accent-blue);
+      font-weight: 700;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(37, 99, 235, 0.2);
+    }
+
+    /* Collapsible Advanced Settings Accordion */
+    .accordion {
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      overflow: hidden;
+      background: var(--bg-card);
+      transition: border-color 0.2s ease;
+    }
+
+    .accordion-header {
+      padding: 10px 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      user-select: none;
+      background: var(--bg-card);
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .accordion-header:hover {
+      color: var(--text-main);
+      background: var(--bg-card-hover);
+    }
+
+    .accordion-icon {
+      font-size: 11px;
+      transition: transform 0.25s ease;
+    }
+
+    .accordion.open .accordion-icon {
+      transform: rotate(180deg);
+    }
+
+    .accordion-content {
+      display: none;
+      padding: 14px;
+      border-top: 1px solid var(--border-color);
+      background: var(--bg-surface);
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .accordion.open .accordion-content {
+      display: flex;
+    }
+
+    /* Primary Action Buttons */
+    .action-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .btn {
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 13.5px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      box-shadow: none !important;
+      transform: none !important;
+    }
+
+    .btn-start {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #ffffff;
+      box-shadow: 0 3px 12px rgba(16, 185, 129, 0.25);
+    }
+
+    .btn-start:hover:not(:disabled) {
+      background: linear-gradient(135deg, #059669, #047857);
+      transform: translateY(-1px);
+      box-shadow: 0 5px 16px rgba(16, 185, 129, 0.35);
+    }
+
+    .btn-stop {
+      background: linear-gradient(135deg, #f43f5e, #e11d48);
+      color: #ffffff;
+      box-shadow: 0 3px 12px rgba(244, 63, 94, 0.25);
+    }
+
+    .btn-stop:hover:not(:disabled) {
+      background: linear-gradient(135deg, #e11d48, #be123c);
+      transform: translateY(-1px);
+      box-shadow: 0 5px 16px rgba(244, 63, 94, 0.35);
+    }
+
+    .btn-summon {
+      background: rgba(124, 58, 237, 0.1);
+      border: 1px solid rgba(124, 58, 237, 0.3);
+      color: var(--accent-purple);
+      padding: 9px 12px;
+      font-size: 12.5px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      display: none;
+    }
+
+    .btn-voice-preview {
+      background: rgba(37, 99, 235, 0.08);
+      border: 1px solid rgba(37, 99, 235, 0.2);
+      color: var(--accent-blue);
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Right Column: Studio Tabs & Panels */
+    .studio-card {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 600px;
+    }
+
+    .tab-nav {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0 16px;
+      background: var(--bg-surface);
+    }
+
+    .tab-btn {
+      padding: 12px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+    }
+
+    .tab-btn.active {
+      color: var(--accent-blue);
+      border-bottom-color: var(--accent-blue);
+      font-weight: 700;
+    }
+
+    .tab-actions {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tab-action-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 5px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tab-action-btn:hover {
+      color: var(--text-main);
+      border-color: var(--border-focus);
+    }
+
+    /* Tab Panes */
+    .tab-pane {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .tab-pane.active {
+      display: flex;
+    }
+
+    /* Chat Messages Container */
+    .chat-container {
+      flex: 1;
+      height: calc(100vh - 190px);
+      min-height: 520px;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      background: var(--chat-container-bg);
+    }
+
+    .chat-bubble {
+      display: flex;
+      gap: 12px;
+      max-width: 85%;
+      animation: fadeIn 0.25s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .chat-bubble.user {
+      align-self: flex-start;
+    }
+
+    .chat-bubble.bot {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+    }
+
+    .chat-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .chat-bubble.user .chat-avatar {
+      background: rgba(37, 99, 235, 0.1);
+      border: 1px solid rgba(37, 99, 235, 0.2);
+    }
+
+    .chat-bubble.bot .chat-avatar {
+      background: rgba(124, 58, 237, 0.1);
+      border: 1px solid rgba(124, 58, 237, 0.2);
+    }
+
+    .chat-content {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .chat-meta {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .chat-bubble.bot .chat-meta {
+      justify-content: flex-end;
+    }
+
+    .chat-text {
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 13.5px;
+      line-height: 1.5;
+    }
+
+    .chat-bubble.user .chat-text {
+      background: var(--chat-user-bg);
+      border: 1px solid var(--chat-user-border);
+      color: var(--chat-user-text);
+      border-top-left-radius: 2px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    }
+
+    .chat-bubble.bot .chat-text {
+      background: var(--chat-bot-bg);
+      border: 1px solid var(--chat-bot-border);
+      color: var(--chat-bot-text);
+      border-top-right-radius: 2px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    }
+
+    .empty-state {
+      margin: auto;
+      text-align: center;
+      color: var(--text-dim);
+      padding: 40px 20px;
+    }
+
+    .empty-state-icon {
+      font-size: 38px;
+      margin-bottom: 12px;
+      opacity: 0.8;
+    }
+
+    .empty-state p {
+      font-size: 13.5px;
+      line-height: 1.5;
+    }
+
+    /* Terminal Console */
+    .terminal-container {
+      background: #0f172a;
+      padding: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #cbd5e1;
+      height: calc(100vh - 190px);
+      min-height: 520px;
+      overflow-y: auto;
+      line-height: 1.55;
+    }
+
+    .log-line {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 4px;
+      word-break: break-all;
+    }
+
+    .log-time { color: #64748b; flex-shrink: 0; }
+    .log-info { color: #cbd5e1; }
+    .log-warn { color: #fbbf24; }
+    .log-error { color: #f87171; }
+    .log-success { color: #34d399; }
+
+    /* ========================================================
+       POST-CALL REVIEW & SCORECARD MODAL SYSTEM
+       ======================================================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: var(--modal-backdrop);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      animation: fadeInModal 0.25s ease-out;
+    }
+
+    @keyframes fadeInModal {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-card {
+      max-width: 920px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      background: var(--modal-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
+      animation: slideUpModal 0.25s ease-out;
+      position: relative;
+    }
+
+    @keyframes slideUpModal {
+      from { transform: translateY(16px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* 1. Loading / Processing View State */
+    .review-loading-view {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 30px 20px 20px;
+    }
+
+    .radar-orb-wrapper {
+      position: relative;
+      width: 90px;
+      height: 90px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .radar-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 2px solid var(--accent-blue);
+      opacity: 0.7;
+      animation: radarRings 2s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+    }
+
+    .radar-ring:nth-child(2) {
+      animation-delay: -0.6s;
+    }
+
+    .radar-ring:nth-child(3) {
+      animation-delay: -1.2s;
+    }
+
+    @keyframes radarRings {
+      0% { transform: scale(0.6); opacity: 0.9; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+
+    .radar-center-orb {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      color: #ffffff;
+      box-shadow: 0 0 20px rgba(37, 99, 235, 0.4);
+      z-index: 2;
+    }
+
+    .loading-title {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text-main);
+    }
+
+    .loading-desc {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      margin-top: 6px;
+      max-width: 520px;
+      line-height: 1.5;
+    }
+
+    /* Progress Bar */
+    .progress-bar-container {
+      width: 100%;
+      max-width: 540px;
+      margin: 26px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      background: var(--border-color);
+      border-radius: 999px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #2563eb, #7c3aed, #059669);
+      background-size: 200% 100%;
+      border-radius: 999px;
+      width: 25%;
+      transition: width 0.4s ease;
+      animation: progressGlow 2s ease infinite;
+    }
+
+    @keyframes progressGlow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .progress-status-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-dim);
+    }
+
+    .progress-status-text {
+      color: var(--accent-blue);
+    }
+
+    /* Multi-Step Checklist */
+    .processing-steps-list {
+      width: 100%;
+      max-width: 540px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      text-align: left;
+      margin-bottom: 20px;
+    }
+
+    .proc-step-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--text-muted);
+      transition: all 0.2s ease;
+    }
+
+    .proc-step-item.done {
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    .proc-step-item.active {
+      color: var(--accent-blue);
+      font-weight: 700;
+    }
+
+    .proc-step-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      background: var(--border-color);
+      color: var(--text-dim);
+      flex-shrink: 0;
+    }
+
+    .proc-step-item.done .proc-step-icon {
+      background: rgba(5, 150, 105, 0.15);
+      color: #059669;
+      font-weight: 800;
+    }
+
+    .proc-step-item.active .proc-step-icon {
+      background: rgba(37, 99, 235, 0.15);
+      color: var(--accent-blue);
+      animation: spinStep 1.2s linear infinite;
+    }
+
+    @keyframes spinStep {
+      100% { transform: rotate(360deg); }
+    }
+
+    /* 2. Completed Scorecard Content View */
+    .review-content-view {
+      display: none;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .score-hero {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      background: var(--modal-hero-bg);
+      border: 1px solid var(--modal-hero-border);
+      border-radius: 14px;
+      padding: 20px;
+    }
+
+    .score-circle {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(37, 99, 235, 0.3);
+      flex-shrink: 0;
+    }
+
+    .score-number {
+      font-size: 30px;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1;
+    }
+
+    .score-max {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.8);
+      margin-top: 2px;
+    }
+
+    .score-hero-details {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .score-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12.5px;
+      font-weight: 700;
+    }
+
+    .stat-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .stat-pill {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 11.5px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* Executive Problem & Solution Grid */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .summary-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+
+    .summary-box-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .summary-box-text {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    /* Metric Rows */
+    .metric-row {
+      margin-bottom: 12px;
+      background: var(--modal-box-bg);
+      border: 1px solid var(--modal-box-border);
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+
+    .metric-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .metric-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .metric-score-tag {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent-blue);
+    }
+
+    .metric-bar-bg {
+      width: 100%;
+      height: 6px;
+      background: var(--border-color);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+
+    .metric-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, #2563eb, #059669);
+      transition: width 0.6s ease;
+    }
+
+    .metric-feedback {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    /* Strengths & Gaps */
+    .analysis-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    @media (max-width: 700px) {
+      .analysis-grid-2 { grid-template-columns: 1fr; }
+      .score-hero { flex-direction: column; text-align: center; }
+    }
+
+    .analysis-box {
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+
+    .analysis-box.strengths {
+      border: 1px solid rgba(5, 150, 105, 0.25);
+      background: rgba(5, 150, 105, 0.04);
+    }
+
+    .analysis-box.gaps {
+      border: 1px solid rgba(217, 119, 6, 0.25);
+      background: rgba(217, 119, 6, 0.04);
+    }
+
+    .analysis-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .analysis-list li {
+      font-size: 12px;
+      color: var(--text-main);
+      line-height: 1.45;
+      display: flex;
+      gap: 7px;
+    }
+
+    .rec-item {
+      background: var(--modal-box-bg);
+      border: 1px solid var(--modal-box-border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 12px;
+      color: var(--text-main);
+      line-height: 1.45;
+    }
+
+    /* Custom scrollbars */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
+  </style>
+</head>
+
+<body>
+
+  <!-- Top Navigation Header -->
+  <header>
+    <div class="brand">
+      <div class="brand-icon">🎙️</div>
+      <div class="brand-text">
+        <h1>AI-agent Meeting Studio</h1>
+        <p>Gemini Live Speech-to-Speech Autonomous Meeting Agent</p>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <!-- Dark/Light Theme Toggle -->
+      <button id="btnThemeToggle" class="theme-toggle-btn" type="button" title="Switch Theme (Light / Dark)">
+        <span id="themeIcon">🌙</span>
+        <span id="themeLabel" style="font-size: 12px; font-weight: 600;">Dark</span>
+      </button>
+
+      <!-- Active Voice Badge -->
+      <div class="pill-badge" style="background: rgba(99, 102, 241, 0.08); border-color: rgba(99, 102, 241, 0.2); color: #4f46e5;">
+        <span>🎙️</span>
+        <span id="activeVoiceBadge">Voice: Puck</span>
+      </div>
+
+      <!-- Live Meeting Call Timer -->
+      <div id="timerBadge" class="pill-badge timer-pill">
+        <span>⏱️</span>
+        <span id="timerDisplay">00:00:00</span>
+      </div>
+
+      <!-- Live Status Pill -->
+      <div id="statusPill" class="status-pill idle">
+        <div class="status-dot"></div>
+        <span id="statusLabel">Ready (Idle)</span>
+      </div>
+
+      <!-- View Review / Scorecard Button -->
+      <button id="btnViewScorecard" class="btn-scorecard-header" style="display: none;" title="View Meeting Evaluation & Pitch Scorecard">
+        <span>📊</span>
+        <span id="btnScorecardText">View Review</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Grid Workspace -->
+  <main>
+    <!-- Left Column: Bot Setup & Persona Controls (Simplified) -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <span>🚀</span> Launch AI Meeting Agent
+        </div>
+      </div>
+
+      <div class="card-body">
+        <!-- 1. Meeting Link Input -->
+        <div class="form-group">
+          <label class="form-label" for="meetingUrl">
+            <span>Meeting Link (Zoom / Google Meet / Teams)</span>
+            <span id="platformTag" class="badge-tag">Auto-Detect</span>
+          </label>
+          <div class="url-input-wrapper">
+            <input type="text" id="meetingUrl" class="input-field"
+              placeholder="Paste Zoom or Teams meeting link..." autocomplete="off" spellcheck="false">
+            <button id="btnPasteUrl" type="button" class="btn-paste">Paste</button>
+          </div>
+        </div>
+
+        <!-- 2. Persona & Role Preset Selector -->
+        <div class="form-group">
+          <label class="form-label" for="presetSelect">
+            <span>Agent Persona & Role</span>
+            <span class="badge-tag">Auto-Configures Prompt</span>
+          </label>
+          <select id="presetSelect" class="input-field">
+            <!-- Populated via /api/presets -->
+          </select>
+        </div>
+
+        <!-- 3. Interaction Response Mode -->
+        <div class="form-group">
+          <label class="form-label">
+            <span>Conversation Response Mode</span>
+            <span id="modeBadge" class="badge-tag" style="background: rgba(5, 150, 105, 0.1); color: var(--accent-green); border-color: rgba(5, 150, 105, 0.25);">Continuous</span>
+          </label>
+          <div class="segmented-control">
+            <button type="button" id="btnModeContinuous" class="segment-btn active" title="Agent replies automatically after you speak">
+              ⚡ Open Dialogue
+            </button>
+            <button type="button" id="btnModeWakeWord" class="segment-btn" title="Agent stays silent until summoned by wake words (e.g. 'Hey Alex')">
+              🎯 "Hey Alex" Only
+            </button>
+          </div>
+        </div>
+
+        <!-- 4. Primary Meeting Action Buttons -->
+        <div class="action-row">
+          <button id="btnStart" class="btn btn-start">
+            <span>🚀</span> Join Meeting
+          </button>
+          <button id="btnStop" class="btn btn-stop" disabled>
+            <span>🛑</span> End Call & Review
+          </button>
+        </div>
+
+        <!-- Wake Word Summon Button (Only appears during live wake-word calls) -->
+        <button id="btnSummonBot" type="button" class="btn btn-summon" title="Force bot to listen and speak right now">
+          <span>⚡</span> Wake Up Agent Right Now
+        </button>
+
+        <!-- 5. Collapsible Advanced Settings (Keeps UI Clean & Simple) -->
+        <div id="advancedAccordion" class="accordion">
+          <div class="accordion-header" id="accordionToggle">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span>⚙️</span>
+              <span>Advanced Bot & Audio Customization</span>
+            </div>
+            <span class="accordion-icon">▼</span>
+          </div>
+
+          <div class="accordion-content">
+            <!-- Bot Display Name & Gemini Voice Preview -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+              <div class="form-group">
+                <label class="form-label" for="botName">Display Name</label>
+                <input type="text" id="botName" class="input-field" value="Alex (Investor)">
+              </div>
+
+              <div class="form-group">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <label class="form-label" for="voiceSelect" style="margin-bottom: 0;">Voice</label>
+                  <button id="btnPreviewVoice" type="button" class="btn-voice-preview" title="Play live audio preview">
+                    <span>🔊</span> <span id="previewVoiceLabel">Preview</span>
+                  </button>
+                </div>
+                <select id="voiceSelect" class="input-field" style="margin-top: 5px;">
+                  <optgroup label="Natural Studio Voices">
+                    <option value="Puck" selected>Puck (Natural & Friendly)</option>
+                    <option value="Charon">Charon (Deep & Authoritative)</option>
+                    <option value="Kore">Kore (Calm & Empathetic)</option>
+                    <option value="Fenrir">Fenrir (Dynamic & Energetic)</option>
+                    <option value="Aoede">Aoede (Warm & Polished)</option>
+                    <option value="Zephyr">Zephyr (Gentle & Smooth)</option>
+                  </optgroup>
+                  <optgroup label="Celestial Star Voices">
+                    <option value="Achernar">Achernar (Bright & Resonant)</option>
+                    <option value="Alnilam">Alnilam (Deep & Focused)</option>
+                    <option value="Gacrux">Gacrux (Warm & Engaging)</option>
+                    <option value="Schedar">Schedar (Sharp & Dynamic)</option>
+                  </optgroup>
+                </select>
+              </div>
+            </div>
+
+            <!-- Headless Mode Toggle -->
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 0;">
+              <div>
+                <label for="headlessToggle" style="font-size: 12.5px; font-weight: 600; cursor: pointer;">Headless Mode (Background)</label>
+                <p style="font-size: 11px; color: var(--text-dim);">Keep browser hidden vs visible window</p>
+              </div>
+              <input type="checkbox" id="headlessToggle" style="width: 18px; height: 18px; cursor: pointer;">
+            </div>
+
+            <!-- Wake Word Triggers Input (Configurable) -->
+            <div id="wakeWordConfig" style="display: none; flex-direction: column; gap: 6px;">
+              <label class="form-label" for="wakeWordsInput">Trigger Phrases (comma-separated)</label>
+              <input type="text" id="wakeWordsInput" class="input-field" value="hey alex, alex, ai-agent, hey assistant">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
+                <span style="font-size: 11.5px; color: var(--text-dim);">Follow-Up Window</span>
+                <select id="wakeTimeoutSelect" class="input-field" style="width: auto; padding: 4px 8px; font-size: 11.5px;">
+                  <option value="10">10s</option>
+                  <option value="15" selected>15s</option>
+                  <option value="25">25s</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Opening Greeting Input -->
+            <div class="form-group">
+              <label class="form-label" for="greetingInput">Opening Greeting</label>
+              <input type="text" id="greetingInput" class="input-field"
+                value="Hey there! Thanks for hopping on the call. Whenever you're ready, dive in!">
+            </div>
+
+            <!-- System Instructions Textarea -->
+            <div class="form-group">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <label class="form-label" for="systemPrompt" style="margin-bottom: 0;">System Instruction Rules</label>
+                <button id="btnResetPrompt" type="button"
+                  style="background:none;border:none;color:var(--accent-blue);font-size:11.5px;cursor:pointer;font-weight:600;">Reset</button>
+              </div>
+              <textarea id="systemPrompt" style="min-height: 140px; font-size: 12px; font-family: 'JetBrains Mono', monospace;" spellcheck="false"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Demo / Test Review Button -->
+        <div style="display: flex; justify-content: flex-end; padding-top: 4px;">
+          <button id="btnTestReviewDemo" type="button"
+            style="background: transparent; border: none; color: var(--text-dim); font-size: 11.5px; cursor: pointer; text-decoration: underline;">
+            ✨ Preview Review Loading & Scorecard Demo
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Unified Studio (Transcript & System Logs Tabs) -->
+    <div class="card studio-card">
+      <div class="tab-nav">
+        <button id="tabBtnTranscript" class="tab-btn active" type="button">
+          <span>💬</span>
+          <span>Live Dialogue Transcript</span>
+        </button>
+        <button id="tabBtnLogs" class="tab-btn" type="button">
+          <span>⚡</span>
+          <span>Bot Logs & Telemetry</span>
+        </button>
+
+        <div class="tab-actions">
+          <button id="btnCopyTranscript" class="tab-action-btn" type="button">Copy Transcript</button>
+          <button id="btnClearLogs" class="tab-action-btn" type="button" style="display: none;">Clear Logs</button>
+        </div>
+      </div>
+
+      <!-- Tab 1: Live Chat Transcript -->
+      <div id="paneTranscript" class="tab-pane active">
+        <div id="chatFeed" class="chat-container">
+          <div class="empty-state">
+            <div class="empty-state-icon">🎙️</div>
+            <p><strong>Ready for your meeting.</strong><br>Conversation turns will stream here in real time as speech happens.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Terminal Logs -->
+      <div id="paneLogs" class="tab-pane">
+        <div id="terminalLog" class="terminal-container">
+          <div class="log-line">
+            <span class="log-time">[00:00:00]</span>
+            <span class="log-info">AI-agent Studio initialized. Ready to connect.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ========================================================
+       POST-CALL REVIEW & SCORECARD MODAL SYSTEM
+       ======================================================== -->
+  <div id="scorecardModal" class="modal-backdrop">
+    <div class="modal-card">
+      <!-- Modal Header -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 24px;">📊</span>
+            <h2 id="modalMainTitle" style="font-size: 19px; font-weight: 800; color: var(--text-main); letter-spacing: -0.02em;">
+              Meeting Review & Pitch Scorecard
+            </h2>
+          </div>
+          <p id="modalMainDesc" style="font-size: 12.5px; color: var(--text-muted); margin-top: 3px;">
+            Post-call evaluation of startup pitch, validation signals, and investor feedback
+          </p>
+        </div>
+        <button id="btnCloseScorecard" style="background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-muted); width: 32px; height: 32px; border-radius: 8px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;">✕</button>
+      </div>
+
+      <!-- VIEW 1: LOADING & PROCESSING SCREEN -->
+      <div id="reviewLoadingView" class="review-loading-view">
+        <div class="radar-orb-wrapper">
+          <div class="radar-ring"></div>
+          <div class="radar-ring"></div>
+          <div class="radar-ring"></div>
+          <div class="radar-center-orb">🧠</div>
+        </div>
+
+        <h3 class="loading-title">Analyzing Meeting Conversation...</h3>
+        <p class="loading-desc">
+          Gemini is synthesizing dialogue transcripts, evaluating startup pitch clarity, scoring investor dimensions, and extracting actionable next steps.
+        </p>
+
+        <!-- Progress Bar -->
+        <div class="progress-bar-container">
+          <div class="progress-track">
+            <div id="loadingProgressFill" class="progress-fill"></div>
+          </div>
+          <div class="progress-status-row">
+            <span id="loadingProgressLabel" class="progress-status-text">Processing dialogue turns...</span>
+            <span id="loadingProgressPct">35%</span>
+          </div>
+        </div>
+
+        <!-- Processing Steps Checklist -->
+        <div class="processing-steps-list">
+          <div id="stepItem1" class="proc-step-item done">
+            <div class="proc-step-icon">✓</div>
+            <span>Dialogue Transcript Extraction & Speaker Diarization</span>
+          </div>
+          <div id="stepItem2" class="proc-step-item active">
+            <div class="proc-step-icon">⟳</div>
+            <span>Pitch Clarity & Problem-Solution Validation Analysis</span>
+          </div>
+          <div id="stepItem3" class="proc-step-item">
+            <div class="proc-step-icon">3</div>
+            <span>Computing 5-Dimensional Investment Criteria Scores (0-100)</span>
+          </div>
+          <div id="stepItem4" class="proc-step-item">
+            <div class="proc-step-icon">4</div>
+            <span>Detecting Validated Strengths & Critical Investor Objections</span>
+          </div>
+          <div id="stepItem5" class="proc-step-item">
+            <div class="proc-step-icon">5</div>
+            <span>Compiling Executive Recommendations & Scorecard</span>
+          </div>
+        </div>
+
+        <div style="font-size: 11.5px; color: var(--text-dim); display: flex; align-items: center; gap: 6px;">
+          <span>⚡</span>
+          <span id="loadingTipText">Evaluating founder responsiveness and pitch traction...</span>
+        </div>
+      </div>
+
+      <!-- VIEW 2: COMPLETED SCORECARD CONTENT -->
+      <div id="reviewContentView" class="review-content-view">
+        <!-- Hero Scorecard Card -->
+        <div id="scoreHero" class="score-hero">
+          <div class="score-circle">
+            <span id="heroScoreNum" class="score-number">--</span>
+            <span class="score-max">/ 100</span>
+          </div>
+          <div class="score-hero-details">
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+              <span id="heroRatingBadge" class="score-badge">Evaluating...</span>
+              <span id="heroEvaluatorText" style="font-size: 12.5px; color: var(--text-dim);">Investor Evaluation: Alex (Tech VC)</span>
+            </div>
+            <div class="stat-pills">
+              <div class="stat-pill">⏱️ <span id="statDuration">--</span></div>
+              <div class="stat-pill">💬 <span id="statTurns">-- turns</span></div>
+              <div class="stat-pill">🗣️ <span id="statTalkRatio">--</span></div>
+              <div class="stat-pill">📝 <span id="statFounderWords">-- founder words</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Executive Summary Box -->
+        <div style="background: var(--modal-box-bg); border: 1px solid var(--modal-box-border); border-radius: 12px; padding: 16px;">
+          <h3 style="font-size: 13.5px; font-weight: 700; color: var(--accent-blue); margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+            <span>📋</span> Executive Pitch Summary
+          </h3>
+          <p id="summaryText" style="font-size: 12.5px; color: var(--text-main); line-height: 1.55;">
+            Generating executive summary...
+          </p>
+
+          <div class="summary-grid">
+            <div class="summary-box">
+              <div class="summary-box-title" style="color: var(--accent-amber);">⚠️ Problem Identified</div>
+              <div id="boxProblem" class="summary-box-text">--</div>
+            </div>
+            <div class="summary-box">
+              <div class="summary-box-title" style="color: var(--accent-green);">💡 Proposed Solution</div>
+              <div id="boxSolution" class="summary-box-text">--</div>
+            </div>
+            <div class="summary-box">
+              <div class="summary-box-title" style="color: var(--accent-blue);">🎯 Target Market</div>
+              <div id="boxTarget" class="summary-box-text">--</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5 Dimensional Investment Metrics -->
+        <div>
+          <h3 style="font-size: 13.5px; font-weight: 700; color: var(--text-main); margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+            <span>📊</span> Investment Evaluation Criteria (0 - 100)
+          </h3>
+          <div id="metricsContainer"></div>
+        </div>
+
+        <!-- 2-Column Validation Info & Critical Gaps -->
+        <div class="analysis-grid-2">
+          <div class="analysis-box strengths">
+            <h4 style="font-size: 12.5px; font-weight: 700; color: var(--accent-green); display: flex; align-items: center; gap: 6px;">
+              <span>🛡️</span> Validated Strengths & Buy-In
+            </h4>
+            <ul id="listStrengths" class="analysis-list"></ul>
+          </div>
+          <div class="analysis-box gaps">
+            <h4 style="font-size: 12.5px; font-weight: 700; color: var(--accent-amber); display: flex; align-items: center; gap: 6px;">
+              <span>⚠️</span> Critical Gaps & Objections
+            </h4>
+            <ul id="listGaps" class="analysis-list"></ul>
+          </div>
+        </div>
+
+        <!-- Actionable Recommendations -->
+        <div style="background: var(--modal-box-bg); border: 1px solid var(--modal-box-border); border-radius: 12px; padding: 16px;">
+          <h4 style="font-size: 12.5px; font-weight: 700; color: var(--accent-purple); display: flex; align-items: center; gap: 6px; margin-bottom: 10px;">
+            <span>🎯</span> Actionable Next Steps for Founder
+          </h4>
+          <div id="listRecommendations" style="display: flex; flex-direction: column; gap: 8px;"></div>
+        </div>
+
+        <!-- Modal Footer Toolbar -->
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 16px; border-top: 1px solid var(--border-color); gap: 10px;">
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button id="btnCopyReportMarkdown" class="tab-action-btn" style="color: var(--accent-blue); border-color: rgba(37,99,235,0.3); background: rgba(37,99,235,0.06);">
+              📋 Copy Markdown
+            </button>
+            <button id="btnDownloadJson" class="tab-action-btn">
+              💾 Download JSON
+            </button>
+            <button id="btnReanalyzeMeeting" class="tab-action-btn">
+              🔄 Re-Analyze
+            </button>
+          </div>
+          <button id="btnCloseScorecardFooter" style="background: var(--accent-blue); color: #ffffff; border: none; padding: 7px 18px; border-radius: 7px; font-size: 12.5px; font-weight: 600; cursor: pointer;">
+            Close Review
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State management
+    let presets = [];
+    let isRunning = false;
+    let timerInterval = null;
+    let startTime = null;
+    let ws = null;
+    let currentMeetingAnalysis = null;
+    let currentInteractionMode = 'continuous'; // 'continuous' | 'wake_word'
+    let userHasManuallyChangedVoice = false;
+    let previewAudio = null;
+    let loadingStepInterval = null;
+
+    // Elements
+    const meetingUrlInput = document.getElementById('meetingUrl');
+    const btnPasteUrl = document.getElementById('btnPasteUrl');
+    const platformTag = document.getElementById('platformTag');
+    const botNameInput = document.getElementById('botName');
+    const voiceSelect = document.getElementById('voiceSelect');
+    const btnPreviewVoice = document.getElementById('btnPreviewVoice');
+    const previewVoiceLabel = document.getElementById('previewVoiceLabel');
+    const activeVoiceBadge = document.getElementById('activeVoiceBadge');
+    const headlessToggle = document.getElementById('headlessToggle');
+    const presetSelect = document.getElementById('presetSelect');
+    const systemPromptInput = document.getElementById('systemPrompt');
+    const greetingInput = document.getElementById('greetingInput');
+    const btnStart = document.getElementById('btnStart');
+    const btnStop = document.getElementById('btnStop');
+    const btnResetPrompt = document.getElementById('btnResetPrompt');
+    const btnSummonBot = document.getElementById('btnSummonBot');
+    const btnModeContinuous = document.getElementById('btnModeContinuous');
+    const btnModeWakeWord = document.getElementById('btnModeWakeWord');
+    const modeBadge = document.getElementById('modeBadge');
+    const wakeWordConfig = document.getElementById('wakeWordConfig');
+    const wakeWordsInput = document.getElementById('wakeWordsInput');
+    const wakeTimeoutSelect = document.getElementById('wakeTimeoutSelect');
+    const statusPill = document.getElementById('statusPill');
+    const statusLabel = document.getElementById('statusLabel');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const timerBadge = document.getElementById('timerBadge');
+    const chatFeed = document.getElementById('chatFeed');
+    const terminalLog = document.getElementById('terminalLog');
+    const btnCopyTranscript = document.getElementById('btnCopyTranscript');
+    const btnClearLogs = document.getElementById('btnClearLogs');
+    const btnViewScorecard = document.getElementById('btnViewScorecard');
+    const btnTestReviewDemo = document.getElementById('btnTestReviewDemo');
+
+    // Tabs
+    const tabBtnTranscript = document.getElementById('tabBtnTranscript');
+    const tabBtnLogs = document.getElementById('tabBtnLogs');
+    const paneTranscript = document.getElementById('paneTranscript');
+    const paneLogs = document.getElementById('paneLogs');
+
+    // Accordion
+    const advancedAccordion = document.getElementById('advancedAccordion');
+    const accordionToggle = document.getElementById('accordionToggle');
+
+    // Modal & Review Loading View
+    const scorecardModal = document.getElementById('scorecardModal');
+    const btnCloseScorecard = document.getElementById('btnCloseScorecard');
+    const btnCloseScorecardFooter = document.getElementById('btnCloseScorecardFooter');
+    const reviewLoadingView = document.getElementById('reviewLoadingView');
+    const reviewContentView = document.getElementById('reviewContentView');
+    const modalMainTitle = document.getElementById('modalMainTitle');
+    const modalMainDesc = document.getElementById('modalMainDesc');
+    const loadingProgressFill = document.getElementById('loadingProgressFill');
+    const loadingProgressLabel = document.getElementById('loadingProgressLabel');
+    const loadingProgressPct = document.getElementById('loadingProgressPct');
+    const loadingTipText = document.getElementById('loadingTipText');
+
+    // Scorecard Elements
+    const heroScoreNum = document.getElementById('heroScoreNum');
+    const heroRatingBadge = document.getElementById('heroRatingBadge');
+    const heroEvaluatorText = document.getElementById('heroEvaluatorText');
+    const statDuration = document.getElementById('statDuration');
+    const statTurns = document.getElementById('statTurns');
+    const statTalkRatio = document.getElementById('statTalkRatio');
+    const statFounderWords = document.getElementById('statFounderWords');
+    const summaryText = document.getElementById('summaryText');
+    const boxProblem = document.getElementById('boxProblem');
+    const boxSolution = document.getElementById('boxSolution');
+    const boxTarget = document.getElementById('boxTarget');
+    const metricsContainer = document.getElementById('metricsContainer');
+    const listStrengths = document.getElementById('listStrengths');
+    const listGaps = document.getElementById('listGaps');
+    const listRecommendations = document.getElementById('listRecommendations');
+    const btnCopyReportMarkdown = document.getElementById('btnCopyReportMarkdown');
+    const btnDownloadJson = document.getElementById('btnDownloadJson');
+    const btnReanalyzeMeeting = document.getElementById('btnReanalyzeMeeting');
+
+    // Theme Switcher (Light Default)
+    const btnThemeToggle = document.getElementById('btnThemeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const themeLabel = document.getElementById('themeLabel');
+
+    function applyTheme(theme) {
+      if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem('studio_theme', 'dark');
+        if (themeIcon) themeIcon.textContent = '☀️';
+        if (themeLabel) themeLabel.textContent = 'Light';
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+        localStorage.setItem('studio_theme', 'light');
+        if (themeIcon) themeIcon.textContent = '🌙';
+        if (themeLabel) themeLabel.textContent = 'Dark';
+      }
+    }
+
+    applyTheme(localStorage.getItem('studio_theme') || 'light');
+    if (btnThemeToggle) {
+      btnThemeToggle.addEventListener('click', () => {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        applyTheme(isDark ? 'light' : 'dark');
+      });
+    }
+
+    // Tab Switching
+    tabBtnTranscript.addEventListener('click', () => {
+      tabBtnTranscript.classList.add('active');
+      tabBtnLogs.classList.remove('active');
+      paneTranscript.classList.add('active');
+      paneLogs.classList.remove('active');
+      btnCopyTranscript.style.display = 'inline-block';
+      btnClearLogs.style.display = 'none';
+    });
+
+    tabBtnLogs.addEventListener('click', () => {
+      tabBtnLogs.classList.add('active');
+      tabBtnTranscript.classList.remove('active');
+      paneLogs.classList.add('active');
+      paneTranscript.classList.remove('active');
+      btnCopyTranscript.style.display = 'none';
+      btnClearLogs.style.display = 'inline-block';
+    });
+
+    // Accordion Toggle
+    accordionToggle.addEventListener('click', () => {
+      advancedAccordion.classList.toggle('open');
+    });
+
+    // Paste Shortcut
+    btnPasteUrl.addEventListener('click', async () => {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text) {
+          meetingUrlInput.value = text.trim();
+          detectPlatform(text.trim());
+        }
+      } catch (e) {
+        meetingUrlInput.focus();
+      }
+    });
+
+    function detectPlatform(url) {
+      const lower = (url || '').toLowerCase();
+      if (lower.includes('zoom.us')) {
+        platformTag.textContent = 'Zoom';
+        platformTag.style.background = 'rgba(37, 99, 235, 0.12)';
+        platformTag.style.borderColor = 'rgba(37, 99, 235, 0.3)';
+        platformTag.style.color = 'var(--accent-blue)';
+      } else if (lower.includes('meet.google.com')) {
+        platformTag.textContent = 'Google Meet';
+        platformTag.style.background = 'rgba(5, 150, 105, 0.12)';
+        platformTag.style.borderColor = 'rgba(5, 150, 105, 0.3)';
+        platformTag.style.color = '#059669';
+      } else if (lower.includes('teams.microsoft.com') || lower.includes('teams.live.com')) {
+        platformTag.textContent = 'MS Teams';
+        platformTag.style.background = 'rgba(124, 58, 237, 0.12)';
+        platformTag.style.borderColor = 'rgba(124, 58, 237, 0.3)';
+        platformTag.style.color = 'var(--accent-purple)';
+      } else {
+        platformTag.textContent = 'Auto-Detect';
+        platformTag.style.background = 'rgba(37, 99, 235, 0.08)';
+        platformTag.style.borderColor = 'var(--border-color)';
+        platformTag.style.color = 'var(--text-muted)';
+      }
+    }
+
+    meetingUrlInput.addEventListener('input', () => detectPlatform(meetingUrlInput.value));
+
+    // Interaction Modes
+    btnModeContinuous.addEventListener('click', () => {
+      currentInteractionMode = 'continuous';
+      btnModeContinuous.classList.add('active');
+      btnModeWakeWord.classList.remove('active');
+      wakeWordConfig.style.display = 'none';
+      modeBadge.textContent = 'Continuous';
+      modeBadge.style.color = '#059669';
+      modeBadge.style.background = 'rgba(5, 150, 105, 0.1)';
+      btnSummonBot.style.display = 'none';
+      log('Response Mode: Continuous Open Dialogue', 'info');
+    });
+
+    btnModeWakeWord.addEventListener('click', () => {
+      currentInteractionMode = 'wake_word';
+      btnModeWakeWord.classList.add('active');
+      btnModeContinuous.classList.remove('active');
+      wakeWordConfig.style.display = 'flex';
+      modeBadge.textContent = 'Wake Word';
+      modeBadge.style.color = 'var(--accent-purple)';
+      modeBadge.style.background = 'rgba(124, 58, 237, 0.1)';
+      if (isRunning) {
+        btnSummonBot.style.display = 'block';
+        btnSummonBot.disabled = false;
+      }
+      log(`Response Mode: Wake Word Only ("${wakeWordsInput.value}")`, 'info');
+    });
+
+    btnSummonBot.addEventListener('click', async () => {
+      try {
+        btnSummonBot.disabled = true;
+        const res = await fetch('/api/session/wake', { method: 'POST' });
+        if (res.ok) log('⚡ Manually summoned / awakened agent!', 'success');
+      } catch (err) {
+        log('Error summoning bot: ' + err.message, 'error');
+      } finally {
+        setTimeout(() => { if (isRunning) btnSummonBot.disabled = false; }, 1000);
+      }
+    });
+
+    // Voice Selection & Live Audio Preview
+    function updateVoiceBadge(name) {
+      if (activeVoiceBadge) activeVoiceBadge.textContent = `Voice: ${name}`;
+    }
+
+    voiceSelect.addEventListener('change', () => {
+      userHasManuallyChangedVoice = true;
+      localStorage.setItem('ai_agent_selected_voice', voiceSelect.value);
+      updateVoiceBadge(voiceSelect.value);
+      log(`🎙️ Gemini Voice updated: "${voiceSelect.value}"`, 'info');
+    });
+
+    btnPreviewVoice.addEventListener('click', async () => {
+      const voice = voiceSelect.value;
+      if (!voice) return;
+      if (previewAudio) {
+        previewAudio.pause();
+        previewAudio = null;
+      }
+      btnPreviewVoice.disabled = true;
+      previewVoiceLabel.textContent = 'Loading...';
+      try {
+        const url = `/api/voice/preview?voice=${encodeURIComponent(voice)}&t=${Date.now()}`;
+        previewAudio = new Audio(url);
+        previewAudio.onplaying = () => { previewVoiceLabel.textContent = 'Playing...'; };
+        previewAudio.onended = () => {
+          btnPreviewVoice.disabled = false;
+          previewVoiceLabel.textContent = 'Preview';
+          previewAudio = null;
+        };
+        previewAudio.onerror = () => {
+          btnPreviewVoice.disabled = false;
+          previewVoiceLabel.textContent = 'Preview';
+          previewAudio = null;
+          log(`Failed to play voice preview for "${voice}".`, 'error');
+        };
+        await previewAudio.play();
+      } catch (e) {
+        btnPreviewVoice.disabled = false;
+        previewVoiceLabel.textContent = 'Preview';
+      }
+    });
+
+    // Load Persona Presets
+    async function loadPresets() {
+      try {
+        const res = await fetch('/api/presets');
+        presets = await res.json();
+        presetSelect.innerHTML = presets.map(p => `
+          <option value="${p.id}">${p.badge} - ${p.name}</option>
+        `).join('');
+        if (presets.length > 0) applyPreset(presets[0]);
+      } catch (e) {
+        log('Failed to load presets: ' + e.message, 'error');
+      }
+    }
+
+    function applyPreset(preset) {
+      if (!preset) return;
+      botNameInput.value = preset.defaultBotName;
+      if (!userHasManuallyChangedVoice) {
+        voiceSelect.value = preset.voiceName;
+        updateVoiceBadge(preset.voiceName);
+      }
+      greetingInput.value = preset.greeting;
+      systemPromptInput.value = preset.systemPrompt;
+    }
+
+    presetSelect.addEventListener('change', () => {
+      const selected = presets.find(p => p.id === presetSelect.value);
+      if (selected) applyPreset(selected);
+    });
+
+    btnResetPrompt.addEventListener('click', () => {
+      const selected = presets.find(p => p.id === presetSelect.value);
+      if (selected) systemPromptInput.value = selected.systemPrompt;
+    });
+
+    // Logging
+    function log(message, level = 'info') {
+      const timeStr = new Date().toTimeString().split(' ')[0];
+      const div = document.createElement('div');
+      div.className = 'log-line';
+      div.innerHTML = `<span class="log-time">[${timeStr}]</span> <span class="log-${level}">${escapeHtml(message)}</span>`;
+      terminalLog.appendChild(div);
+      terminalLog.scrollTop = terminalLog.scrollHeight;
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    btnClearLogs.addEventListener('click', () => { terminalLog.innerHTML = ''; });
+
+    // Chat Transcript Streaming
+    let hasMessages = false;
+    let currentTurnSpeaker = null;
+    let currentTurnBubble = null;
+    let currentTurnTextEl = null;
+
+    function resetTurnState() {
+      currentTurnSpeaker = null;
+      currentTurnBubble = null;
+      currentTurnTextEl = null;
+    }
+
+    function addChatMessage(speaker, text, isIncremental = false, isFinal = false) {
+      if (!text || text.trim() === '') return;
+      if (!hasMessages) {
+        chatFeed.innerHTML = '';
+        hasMessages = true;
+      }
+
+      const isUser = speaker === 'user';
+      const name = isUser ? 'Founder / Participant' : (botNameInput.value || 'Alex (Investor)');
+
+      if (currentTurnSpeaker === speaker && currentTurnBubble && currentTurnTextEl) {
+        if (isIncremental) {
+          currentTurnTextEl.textContent += text;
+        } else if (isFinal) {
+          if (text.length >= currentTurnTextEl.textContent.length) {
+            currentTurnTextEl.textContent = text;
+          }
+        }
+        chatFeed.scrollTop = chatFeed.scrollHeight;
+        return;
+      }
+
+      currentTurnSpeaker = speaker;
+      const bubble = document.createElement('div');
+      bubble.className = `chat-bubble ${isUser ? 'user' : 'bot'}`;
+      const avatar = isUser ? '👤' : '🤖';
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+      bubble.innerHTML = `
+        <div class="chat-avatar">${avatar}</div>
+        <div class="chat-content">
+          <div class="chat-meta">
+            <span>${escapeHtml(name)}</span>
+            <span>•</span>
+            <span>${timeStr}</span>
+          </div>
+          <div class="chat-text">${escapeHtml(text)}</div>
+        </div>
+      `;
+
+      currentTurnBubble = bubble;
+      currentTurnTextEl = bubble.querySelector('.chat-text');
+      chatFeed.appendChild(bubble);
+      chatFeed.scrollTop = chatFeed.scrollHeight;
+    }
+
+    btnCopyTranscript.addEventListener('click', () => {
+      const texts = Array.from(chatFeed.querySelectorAll('.chat-bubble')).map(b => {
+        const name = b.querySelector('.chat-meta span')?.textContent || '';
+        const msg = b.querySelector('.chat-text')?.textContent || '';
+        return `${name}: ${msg}`;
+      }).join('\n\n');
+
+      navigator.clipboard.writeText(texts).then(() => {
+        btnCopyTranscript.textContent = '✓ Copied!';
+        setTimeout(() => { btnCopyTranscript.textContent = 'Copy Transcript'; }, 2000);
+      });
+    });
+
+    // Status Pill Updates
+    function updateStatus(state, message) {
+      statusPill.className = `status-pill ${state}`;
+      const labels = {
+        idle: 'Ready (Idle)',
+        connecting: 'Connecting...',
+        joining: 'Joining Meeting...',
+        in_meeting: 'Live in Meeting',
+        speaking: 'Agent Speaking',
+        listening: 'Listening...',
+        awake: '⚡ Agent Awake',
+      };
+      statusLabel.textContent = labels[state] || message || state;
+    }
+
+    // Call Timer
+    function startTimer() {
+      startTime = Date.now();
+      timerBadge.classList.add('active');
+      timerInterval = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        const hrs = String(Math.floor(elapsed / 3600)).padStart(2, '0');
+        const mins = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
+        const secs = String(elapsed % 60).padStart(2, '0');
+        timerDisplay.textContent = `${hrs}:${mins}:${secs}`;
+      }, 1000);
+    }
+
+    function stopTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      timerBadge.classList.remove('active');
+    }
+
+    function setSessionRunning(running) {
+      isRunning = running;
+      btnStart.disabled = running;
+      btnStop.disabled = !running;
+      btnPreviewVoice.disabled = running;
+      meetingUrlInput.disabled = running;
+      botNameInput.disabled = running;
+      voiceSelect.disabled = running;
+      headlessToggle.disabled = running;
+      presetSelect.disabled = running;
+
+      if (running) {
+        startTimer();
+        if (currentInteractionMode === 'wake_word') {
+          btnSummonBot.style.display = 'block';
+          btnSummonBot.disabled = false;
+        }
+      } else {
+        stopTimer();
+        resetTurnState();
+        btnSummonBot.style.display = 'none';
+        updateStatus('idle', 'Ready (Idle)');
+      }
+    }
+
+    // ========================================================
+    // POST-CALL REVIEW LOADING & SCORECARD MODAL CONTROLLER
+    // ========================================================
+
+    const tips = [
+      'Extracting pitch problem & value proposition...',
+      'Assessing investor responsiveness and conversational rapport...',
+      'Evaluating business model feasibility and market signals...',
+      'Calculating founder-to-investor talk-time balance...',
+      'Synthesizing actionable executive recommendations...',
+    ];
+
+    /**
+     * Opens the Post-Call Review Modal in the animated PROCESSING / LOADING state.
+     */
+    function showReviewLoadingScreen(initialMessage) {
+      modalMainTitle.textContent = '📞 Meeting Concluded — Generating Pitch Review';
+      modalMainDesc.textContent = 'Gemini Live analysis in progress. Synthesizing scores, validation info, and feedback.';
+      
+      reviewLoadingView.style.display = 'flex';
+      reviewContentView.style.display = 'none';
+      scorecardModal.style.display = 'flex';
+
+      // Reset progress
+      let currentProgress = 20;
+      loadingProgressFill.style.width = '20%';
+      loadingProgressPct.textContent = '20%';
+      loadingProgressLabel.textContent = initialMessage || 'Parsing dialogue turns & timestamps...';
+
+      // Reset step indicators
+      setStepState(1, 'done');
+      setStepState(2, 'active');
+      setStepState(3, '');
+      setStepState(4, '');
+      setStepState(5, '');
+
+      // Dynamic animated progress simulation while waiting for Gemini
+      if (loadingStepInterval) clearInterval(loadingStepInterval);
+      let tipIndex = 0;
+      loadingStepInterval = setInterval(() => {
+        if (currentProgress < 88) {
+          currentProgress += Math.floor(Math.random() * 8) + 4;
+          if (currentProgress > 88) currentProgress = 88;
+          loadingProgressFill.style.width = currentProgress + '%';
+          loadingProgressPct.textContent = currentProgress + '%';
+
+          if (currentProgress >= 40 && currentProgress < 65) {
+            setStepState(2, 'done');
+            setStepState(3, 'active');
+            loadingProgressLabel.textContent = 'Scoring investment metrics (0-100)...';
+          } else if (currentProgress >= 65 && currentProgress < 80) {
+            setStepState(3, 'done');
+            setStepState(4, 'active');
+            loadingProgressLabel.textContent = 'Detecting validated signals & gaps...';
+          } else if (currentProgress >= 80) {
+            setStepState(4, 'done');
+            setStepState(5, 'active');
+            loadingProgressLabel.textContent = 'Formulating executive recommendations...';
+          }
+
+          tipIndex = (tipIndex + 1) % tips.length;
+          loadingTipText.textContent = tips[tipIndex];
+        }
+      }, 900);
+    }
+
+    function setStepState(stepNum, state) {
+      const el = document.getElementById(`stepItem${stepNum}`);
+      if (!el) return;
+      el.className = `proc-step-item ${state}`;
+      const icon = el.querySelector('.proc-step-icon');
+      if (icon) {
+        if (state === 'done') icon.textContent = '✓';
+        else if (state === 'active') icon.textContent = '⟳';
+        else icon.textContent = stepNum;
+      }
+    }
+
+    /**
+     * Transitions smoothly from loading state into the completed scorecard.
+     */
+    function renderAndOpenScorecard(data) {
+      if (!data) return;
+      currentMeetingAnalysis = data;
+
+      // Complete progress bar animation
+      if (loadingStepInterval) {
+        clearInterval(loadingStepInterval);
+        loadingStepInterval = null;
+      }
+      loadingProgressFill.style.width = '100%';
+      loadingProgressPct.textContent = '100%';
+      loadingProgressLabel.textContent = 'Scorecard complete!';
+      setStepState(5, 'done');
+
+      setTimeout(() => {
+        modalMainTitle.textContent = '🚀 Pitch Performance & Meeting Scorecard';
+        modalMainDesc.textContent = 'Comprehensive evaluation of startup pitch, validation signals, and investor feedback.';
+        reviewLoadingView.style.display = 'none';
+        reviewContentView.style.display = 'flex';
+        scorecardModal.style.display = 'flex';
+
+        // 1. Hero Score
+        const score = Math.round(data.overallScore || 0);
+        heroScoreNum.textContent = score;
+
+        const badge = data.ratingBadge || (score >= 80 ? 'Seed-Ready Potential' : score >= 70 ? 'Promising with Key Gaps' : 'Early Ideation');
+        heroRatingBadge.textContent = badge;
+        if (score >= 80) {
+          heroRatingBadge.style.background = 'rgba(5, 150, 105, 0.12)';
+          heroRatingBadge.style.color = '#059669';
+          heroRatingBadge.style.border = '1px solid rgba(5, 150, 105, 0.3)';
+        } else if (score >= 65) {
+          heroRatingBadge.style.background = 'rgba(37, 99, 235, 0.12)';
+          heroRatingBadge.style.color = '#2563eb';
+          heroRatingBadge.style.border = '1px solid rgba(37, 99, 235, 0.3)';
+        } else {
+          heroRatingBadge.style.background = 'rgba(217, 119, 6, 0.12)';
+          heroRatingBadge.style.color = '#d97706';
+          heroRatingBadge.style.border = '1px solid rgba(217, 119, 6, 0.3)';
+        }
+
+        // 2. Stats
+        statDuration.textContent = formatDuration(data.dialogueStats?.durationSeconds || 0);
+        statTurns.textContent = `${data.dialogueStats?.totalTurns || 0} turns`;
+        statTalkRatio.textContent = data.dialogueStats?.talkTimeRatio || '50% Founder / 50% Investor';
+        statFounderWords.textContent = `${data.dialogueStats?.founderWordCount || 0} words`;
+
+        // 3. Executive Summary
+        summaryText.textContent = data.summary || 'Summary unavailable.';
+        boxProblem.textContent = data.keyProblemSolution?.problemStatement || 'Not specified';
+        boxSolution.textContent = data.keyProblemSolution?.proposedSolution || 'Not specified';
+        boxTarget.textContent = data.keyProblemSolution?.targetAudience || 'Not specified';
+
+        // 4. Investment Metrics
+        metricsContainer.innerHTML = '';
+        const metricList = [
+          data.metrics?.pitchClarity || { name: 'Pitch Clarity & Articulation', score: 75, label: 'Promising', feedback: '' },
+          data.metrics?.problemValidation || { name: 'Problem Validation & Market Need', score: 80, label: 'Strong', feedback: '' },
+          data.metrics?.technicalFeasibility || { name: 'Technical Feasibility & Architecture', score: 78, label: 'Promising', feedback: '' },
+          data.metrics?.businessModelViability || { name: 'Business Model & Commercial Viability', score: 72, label: 'Moderate', feedback: '' },
+          data.metrics?.investorRapport || { name: 'Investor Rapport & Responsiveness', score: 85, label: 'Strong', feedback: '' },
+        ];
+
+        metricList.forEach(m => {
+          const row = document.createElement('div');
+          row.className = 'metric-row';
+          row.innerHTML = `
+            <div class="metric-header">
+              <span class="metric-name">${escapeHtml(m.name)}</span>
+              <span class="metric-score-tag">${m.score}/100 • ${escapeHtml(m.label || '')}</span>
+            </div>
+            <div class="metric-bar-bg">
+              <div class="metric-bar-fill" style="width: ${Math.max(5, Math.min(100, m.score))}%;"></div>
+            </div>
+            <p class="metric-feedback">${escapeHtml(m.feedback || '')}</p>
+          `;
+          metricsContainer.appendChild(row);
+        });
+
+        // 5. Strengths & Gaps
+        listStrengths.innerHTML = '';
+        (data.validationInfo?.strengths || ['Good conversational exchange']).forEach(s => {
+          const li = document.createElement('li');
+          li.innerHTML = `<span>✓</span> <span>${escapeHtml(s)}</span>`;
+          listStrengths.appendChild(li);
+        });
+        (data.validationInfo?.investorBuyIn || []).forEach(b => {
+          const li = document.createElement('li');
+          li.innerHTML = `<span>★</span> <span><em>Investor Buy-in:</em> ${escapeHtml(b)}</span>`;
+          listStrengths.appendChild(li);
+        });
+
+        listGaps.innerHTML = '';
+        (data.criticalGaps || ['Detail unit economics in follow-up']).forEach(g => {
+          const li = document.createElement('li');
+          li.innerHTML = `<span>⚠️</span> <span>${escapeHtml(g)}</span>`;
+          listGaps.appendChild(li);
+        });
+
+        // 6. Recommendations
+        listRecommendations.innerHTML = '';
+        (data.actionableRecommendations || ['Prepare unit economics overview']).forEach(r => {
+          const div = document.createElement('div');
+          div.className = 'rec-item';
+          div.textContent = r;
+          listRecommendations.appendChild(div);
+        });
+
+        // Show persistent Header Button
+        btnViewScorecard.style.display = 'inline-flex';
+      }, 500);
+    }
+
+    function formatDuration(sec) {
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return m === 0 ? `${s}s` : `${m}m ${s}s`;
+    }
+
+    function closeScorecard() {
+      scorecardModal.style.display = 'none';
+      if (loadingStepInterval) {
+        clearInterval(loadingStepInterval);
+        loadingStepInterval = null;
+      }
+    }
+
+    btnViewScorecard.addEventListener('click', () => {
+      if (currentMeetingAnalysis) {
+        modalMainTitle.textContent = '🚀 Pitch Performance & Meeting Scorecard';
+        reviewLoadingView.style.display = 'none';
+        reviewContentView.style.display = 'flex';
+        scorecardModal.style.display = 'flex';
+      } else {
+        showReviewLoadingScreen('Retrieving latest meeting scorecard...');
+      }
+    });
+
+    btnCloseScorecard.addEventListener('click', closeScorecard);
+    btnCloseScorecardFooter.addEventListener('click', closeScorecard);
+    scorecardModal.addEventListener('click', (e) => {
+      if (e.target === scorecardModal) closeScorecard();
+    });
+
+    // Copy Markdown & Download JSON Handlers
+    btnCopyReportMarkdown.addEventListener('click', () => {
+      if (!currentMeetingAnalysis) return;
+      const d = currentMeetingAnalysis;
+      const md = `# 🚀 Startup Pitch Scorecard
+**Overall Score:** ${d.overallScore}/100 (${d.ratingBadge})
+**Duration:** ${formatDuration(d.dialogueStats?.durationSeconds || 0)} (${d.dialogueStats?.totalTurns || 0} turns)
+
+## 📋 Executive Summary
+${d.summary || ''}
+- Problem: ${d.keyProblemSolution?.problemStatement || ''}
+- Solution: ${d.keyProblemSolution?.proposedSolution || ''}
+- Target: ${d.keyProblemSolution?.targetAudience || ''}
+
+## 📊 Criteria Scores
+- Pitch Clarity: ${d.metrics?.pitchClarity?.score || 0}/100
+- Problem Validation: ${d.metrics?.problemValidation?.score || 0}/100
+- Technical Feasibility: ${d.metrics?.technicalFeasibility?.score || 0}/100
+- Business Model: ${d.metrics?.businessModelViability?.score || 0}/100
+- Investor Rapport: ${d.metrics?.investorRapport?.score || 0}/100
+
+## 🎯 Recommendations
+${(d.actionableRecommendations || []).map((r, i) => `${i + 1}. ${r}`).join('\n')}
+`;
+      navigator.clipboard.writeText(md).then(() => {
+        btnCopyReportMarkdown.textContent = '✓ Copied!';
+        setTimeout(() => { btnCopyReportMarkdown.textContent = '📋 Copy Markdown'; }, 2000);
+      });
+    });
+
+    btnDownloadJson.addEventListener('click', () => {
+      if (!currentMeetingAnalysis) return;
+      const blob = new Blob([JSON.stringify(currentMeetingAnalysis, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `meeting-pitch-scorecard-${Date.now()}.json`;
+      a.click();
+    });
+
+    btnReanalyzeMeeting.addEventListener('click', async () => {
+      btnReanalyzeMeeting.disabled = true;
+      showReviewLoadingScreen('Re-analyzing previous meeting dialogue with Gemini...');
+      try {
+        await fetch('/api/session/analysis/reanalyze', { method: 'POST' });
+      } catch (e) {
+        alert('Re-analysis error: ' + e.message);
+      } finally {
+        setTimeout(() => { btnReanalyzeMeeting.disabled = false; }, 2000);
+      }
+    });
+
+    // Test Demo Button for Instant Preview
+    btnTestReviewDemo.addEventListener('click', () => {
+      showReviewLoadingScreen('Running demo simulation of post-call review...');
+      setTimeout(() => {
+        renderAndOpenScorecard({
+          overallScore: 84,
+          ratingBadge: 'Seed-Ready Potential',
+          summary: 'The founder clearly articulated an AI-powered diagnostic platform for early crop disease detection. Demonstrated deep domain understanding and validated market appetite with farmers.',
+          keyProblemSolution: {
+            problemStatement: 'Smallholder farmers lose 30-40% of crop yields to preventable fungal diseases due to late detection.',
+            proposedSolution: 'Smartphone camera computer-vision diagnostic bot providing instant treatment plans in local languages.',
+            targetAudience: 'Small to mid-scale farmers and agricultural cooperatives.',
+          },
+          metrics: {
+            pitchClarity: { name: 'Pitch Clarity & Articulation', score: 88, label: 'Outstanding', feedback: 'Clear narrative hook, problem framing was immediate and easy to grasp.' },
+            problemValidation: { name: 'Problem Validation & Market Need', score: 85, label: 'Strong', feedback: 'Direct farmer interviews and ground data demonstrated acute pain point.' },
+            technicalFeasibility: { name: 'Technical Feasibility & Architecture', score: 82, label: 'Strong', feedback: 'Edge-optimized vision model handles low connectivity well.' },
+            businessModelViability: { name: 'Business Model & Commercial Viability', score: 76, label: 'Promising', feedback: 'Freemium diagnostic model works; unit monetization via fertilizer partners needs detail.' },
+            investorRapport: { name: 'Investor Rapport & Responsiveness', score: 89, label: 'Outstanding', feedback: 'Handled questions candidly without defensiveness; collaborative dialogue.' },
+          },
+          validationInfo: {
+            strengths: ['Acute market need in food security and crop yield protection.', 'Zero-latency mobile inference capability in offline rural regions.'],
+            investorBuyIn: ['Investor strongly validated cooperative distribution channels as the fastest route to scale.'],
+          },
+          criticalGaps: ['Clarify hardware camera dependencies on low-end Android devices.', 'Formalize pilot conversion rates into paid partner subscriptions.'],
+          actionableRecommendations: [
+            '1. Build a 1-page unit economics sheet showing cooperative distributor margins.',
+            '2. Run a 50-farmer field pilot measuring crop yield uplift over one harvest cycle.',
+            '3. Highlight partnership agreements with seed & fertilizer retailers.',
+          ],
+          dialogueStats: {
+            durationSeconds: 780,
+            totalTurns: 24,
+            founderTurnCount: 12,
+            investorTurnCount: 12,
+            founderWordCount: 920,
+            investorWordCount: 680,
+            talkTimeRatio: '58% Founder / 42% Investor',
+          },
+        });
+      }, 3500);
+    });
+
+    // ========================================================
+    // WEBSOCKET & SESSION CONTROLLERS
+    // ========================================================
+
+    function connectWebSocket() {
+      const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${protocol}//${location.host}/ws`;
+      ws = new WebSocket(wsUrl);
+
+      ws.onopen = () => {
+        log('Connected to AI-agent Control Hub', 'success');
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const msg = JSON.parse(event.data);
+
+          if (msg.type === 'init') {
+            if (msg.data.isRunning) setSessionRunning(true);
+            if (msg.data.session?.voiceName) updateVoiceBadge(msg.data.session.voiceName);
+            if (msg.data.lastAnalysis) {
+              currentMeetingAnalysis = msg.data.lastAnalysis;
+              btnViewScorecard.style.display = 'inline-flex';
+            }
+            if (msg.data.isAnalyzing) {
+              showReviewLoadingScreen('Meeting concluded. Generating scorecard & pitch evaluation...');
+            }
+          } else if (msg.type === 'status') {
+            updateStatus(msg.data.state, msg.data.message);
+            if (msg.data.state === 'in_meeting' || msg.data.state === 'awake') {
+              setSessionRunning(true);
+            }
+          } else if (msg.type === 'transcript') {
+            addChatMessage(msg.data.speaker, msg.data.text, msg.data.isIncremental, msg.data.isFinal);
+          } else if (msg.type === 'log') {
+            log(msg.data.message, msg.data.level);
+          } else if (msg.type === 'stopped') {
+            setSessionRunning(false);
+            log('Meeting call terminated. Preparing post-call review...', 'warn');
+            // IMMEDIATELY show the post-call review loading screen!
+            showReviewLoadingScreen('Call terminated. Synthesizing meeting dialogue & scorecard...');
+          } else if (msg.type === 'analysis_status') {
+            if (msg.data.state === 'analyzing') {
+              showReviewLoadingScreen(msg.data.message || 'Analyzing meeting pitch with Gemini...');
+            } else if (msg.data.state === 'error') {
+              loadingProgressLabel.textContent = 'Analysis notice: ' + msg.data.message;
+              log('Meeting analysis note: ' + msg.data.message, 'warn');
+            }
+          } else if (msg.type === 'analysis_complete') {
+            currentMeetingAnalysis = msg.data;
+            renderAndOpenScorecard(msg.data);
+            log(`📊 Pitch Scorecard ready! Score: ${msg.data.overallScore}/100 (${msg.data.ratingBadge})`, 'success');
+          }
+        } catch (e) { }
+      };
+
+      ws.onclose = () => {
+        setTimeout(connectWebSocket, 2000);
+      };
+    }
+
+    // Start Session Handler
+    btnStart.addEventListener('click', async () => {
+      const meetingUrl = meetingUrlInput.value.trim();
+      if (!meetingUrl) {
+        alert('Please enter a valid Zoom or Teams meeting link.');
+        meetingUrlInput.focus();
+        return;
+      }
+
+      const activeVoice = voiceSelect.value || 'Puck';
+      setSessionRunning(true);
+      updateStatus('connecting', 'Connecting...');
+      log(`Launching meeting agent for: ${meetingUrl}`, 'info');
+
+      try {
+        const res = await fetch('/api/session/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            meetingUrl,
+            botName: botNameInput.value.trim() || 'Alex (Investor)',
+            voiceName: activeVoice,
+            headless: headlessToggle.checked,
+            systemPrompt: systemPromptInput.value,
+            greeting: greetingInput.value.trim(),
+            interactionMode: currentInteractionMode,
+            wakeWords: currentInteractionMode === 'wake_word' ? wakeWordsInput.value.trim() : undefined,
+            wakeTimeoutSeconds: parseInt(wakeTimeoutSelect.value, 10) || 15,
+          }),
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to start meeting session');
+      } catch (err) {
+        log('Error starting meeting session: ' + err.message, 'error');
+        setSessionRunning(false);
+        alert('Could not start meeting bot: ' + err.message);
+      }
+    });
+
+    // Stop Session Handler (Immediately triggers post-call review screen)
+    btnStop.addEventListener('click', async () => {
+      if (!confirm('Leave the meeting and generate your post-call pitch review?')) {
+        return;
+      }
+
+      log('Terminating call and initiating pitch review...', 'warn');
+      btnStop.disabled = true;
+      setSessionRunning(false);
+
+      // Instantly open the loading/process review screen
+      showReviewLoadingScreen('Call ended. Analyzing dialogue turns & generating scorecard...');
+
+      try {
+        await fetch('/api/session/stop', { method: 'POST' });
+      } catch (err) {
+        log('Error stopping session: ' + err.message, 'error');
+      }
+    });
+
+    // Initialize
+    loadPresets();
+    connectWebSocket();
+  </script>
+</body>
+
+</html>

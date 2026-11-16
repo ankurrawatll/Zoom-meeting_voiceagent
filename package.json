@@ -1,0 +1,26 @@
+{
+  "name": "voiceagent",
+  "version": "1.0.0",
+  "description": "Autonomous AI Voice Agent that joins Zoom and Teams meetings with Gemini Live S2S",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "ui": "tsx src/server.ts",
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "test:gemini": "tsx test/test-gemini-live.ts",
+    "login:zoom": "tsx src/bot/loginZoom.ts"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "playwright": "^1.49.1",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/ws": "^8.5.13",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

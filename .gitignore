@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+*.tsbuildinfo
+
+# Environment variables & API credentials (NEVER COMMIT)
+.env
+.env.local
+.env.*.local
+*.env
+!.env.example
+
+# Browser profiles and session caches
+.bot-browser-data/
+.chrome-bot-profile/
+
+# Media, test audio dumps, and screenshots
+*.png
+*.jpg
+*.jpeg
+*.raw
+*.wav
+test_*.raw
+
+# OS and Editor metadata
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
